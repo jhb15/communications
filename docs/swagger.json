@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Communications API.",
+    "version": "1.0.0",
+    "title": "Communications API"
+  },
+  "tags": [
+    {
+      "name": "email",
+      "description": "Provides the ability to send email notifications"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "outgoing_message": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Message to send over email"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO8601 without local timestamp"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The subject field for the message"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The user to send this message to"
+          }
+        },
+        "required": [
+          "content",
+          "timestamp",
+          "subject",
+          "userId"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/email/new": {
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Sends a new email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/outgoing_message"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Message queued for sending"
+          },
+          "400": {
+            "description": "Bad user id or malformed request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    }
+  }
+}
