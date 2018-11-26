@@ -1,64 +1,98 @@
 openapi: 3.0.0
 info:
-  description: "Communications API."
-  version: "1.0.0"
-  title: "Communications API"
-  
+  description: Communications API
+  version: 2.0.0
+  title: Communications
 tags:
-- name: "email"
-  description: "Provides the ability to send email notifications"
-    
+  - name: Email
+    description: Provides the ability to send email notifications
+  - name: Service
+    description: Service status.
+servers:
+  - url: 'https://docker2.aberfitness.biz/comms'
+    description: Comms staging instance
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme : bearer
-
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: ../gatekeeper/connect/token
+          refreshUrl: ../gatekeeper/connect/token
+          scopes: comms
   schemas:
-    outgoing_message:
+    BaseMessage:
       properties:
-        content:
+        Subject:
           type: string
-          description: "Message to send over email"
-    
-        timestamp:
+          description: The subject field for the message
+        Content:
           type: string
-          description: "ISO8601 without local timestamp"
-        
-        subject:
+          description: Message to send over email
+    MessageToUserId:
+      allOf:
+      - $ref: "#/components/schemas/BaseMessage"
+      properties:
+        UserId:
           type: string
-          description: "The subject field for the message"
-        
-        userId:
+          description: The ID of the user to send the email to
+    MessageToEmail:
+      allOf:
+      - $ref: "#/components/schemas/BaseMessage"
+      properties:
+        EmailAddress:
           type: string
-          description: "The user to send this message to"
-      required:
-        - content
-        - timestamp
-        - subject
-        - userId
-
-# Apply security globally  
-security:
-  - bearerAuth: []
-
+          description: The email to address to send the email to
+      
 paths:
-  /email/new :
+  /api/Status:
+    get:
+      tags:
+        - Service
+      summary: Endpoint for monitoring software/load balancers to query service status.
+      description: This endpoint can be queried to determine if the service is ready to accept requests.  A 200 response indicates that the service is ready.  Any other response indicates that it is not ready.
+      responses:
+        200:
+          description: The service is healthy
+  /api/Email/ToUser:
     post:
-      tags: [email]
-      summary: Sends a new email
+      tags:
+        - Email
+      summary: Send an email to a User using their User ID.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/outgoing_message'
+              $ref: '#/components/schemas/MessageToUserId'
       responses:
-        204: 
-          description: "Message queued for sending"
+        204:
+          description: Success
         400:
-          description: "Bad user id or malformed request"
-        401: 
-          description: "Unauthorised"
-        500: 
-          description: "Server Error"
+          description: Bad request
+        401:
+          description: Unauthorised
+        404:
+          description: User ID not found
+      security:
+        - OAuth2: []
+  /api/Email/ToEmail:
+    post:
+      tags:
+        - Email
+      summary: Send an email to a User using their email address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageToEmail'
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorised
+      security:
+        - OAuth2: []
