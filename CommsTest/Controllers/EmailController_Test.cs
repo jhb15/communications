@@ -159,7 +159,11 @@ namespace CommsTest.Controllers
         [Fact]
         public async void ToUser_Returns500OnApiException()
         {
-
+            gatekeeperApiClient.Setup(g => g.GetAsync("api/Users/abc123")).ThrowsAsync(new GatekeeperApiException("test"));
+            var result = await controller.ToUser(msg);
+            Assert.IsType<StatusCodeResult>(result);
+            var content = result as StatusCodeResult;
+            Assert.Equal(500, content.StatusCode);
         }
     }
 }
