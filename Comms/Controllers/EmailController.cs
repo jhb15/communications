@@ -7,6 +7,7 @@ using Comms.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Comms.Controllers
@@ -18,11 +19,13 @@ namespace Comms.Controllers
     {
         private readonly IEmailSender emailSender;
         private readonly IGatekeeperApiClient gatekeeperClient;
+        private readonly ILogger logger;
 
-        public EmailController(IEmailSender emailSender, IGatekeeperApiClient gatekeeperClient)
+        public EmailController(IEmailSender emailSender, IGatekeeperApiClient gatekeeperClient, ILogger<EmailController> logger)
         {
             this.emailSender = emailSender;
             this.gatekeeperClient = gatekeeperClient;
+            this.logger = logger;
         }
 
         [HttpPost("ToUser")]
@@ -41,18 +44,15 @@ namespace Comms.Controllers
                 {
                     return NotFound();
                 }
-
             }
             catch (EmailException ex)
             {
-                // TODO log it properly
-                Console.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 return StatusCode(500);
             }
             catch (GatekeeperApiException ex)
             {
-                // TODO log it properly
-                Console.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 return StatusCode(500);
             }
         }
@@ -67,8 +67,7 @@ namespace Comms.Controllers
             }
             catch (EmailException ex)
             {
-                // TODO log it properly
-                Console.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 return StatusCode(500);
             }
         }
