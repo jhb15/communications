@@ -26,8 +26,19 @@ namespace Comms
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var appConfig = Configuration.GetSection("Comms");
+
+            services.AddHttpClient("gatekeeper", client => client.BaseAddress = new Uri(appConfig.GetValue<string>("GatekeeperUrl")));
             services.AddSingleton<IEmailSender, SendgridEmailSender>();
+            services.AddSingleton<IGatekeeperApiClient, GatekeeperApiClient>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddAuthentication("Bearer")
+            .AddIdentityServerAuthentication(options =>
+            {
+                options.Authority = appConfig.GetValue<string>("GatekeeperUrl");
+                options.ApiName = appConfig.GetValue<string>("ApiResourceName", "comms");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +54,7 @@ namespace Comms
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

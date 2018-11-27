@@ -18,8 +18,8 @@ AberFitness Communications Microservice
 | Comms__FromName | AberFitness | The name from which emails should be sent. |
 | Comms__ClientId | N/A | Gatekeeper client ID. |
 | Comms__ClientSecret | N/A | Gatekeeper client secret. |
-| Comms__ApiResourceName | Comms | The name of the API resource being protected. |
-| Comms__GatekeeperUrl | N/A | Gatekeeper OAuth authroity URL. |
+| Comms__ApiResourceName | comms | The name of the API resource being protected. |
+| Comms__GatekeeperUrl | N/A | Gatekeeper OAuth authroity URL.  **Important**: Must include a trailing slash. |
 
 
 ## Required Keys (Production + Staging Environments)

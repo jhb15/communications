@@ -34,7 +34,7 @@ namespace Comms.Services
                 htmlContent
                 );
             var response = await client.SendEmailAsync(msg);
-            if (response.StatusCode != HttpStatusCode.OK || response.StatusCode != HttpStatusCode.Accepted)
+            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Accepted)
             {
                 // TODO log it properly
                 Console.WriteLine(response.Body);
