@@ -38,8 +38,11 @@ namespace Comms
             services.AddSingleton<IGatekeeperApiClient, GatekeeperApiClient>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddAuthentication("Bearer")
-            .AddIdentityServerAuthentication(options =>
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Bearer";
+            })
+            .AddIdentityServerAuthentication("Bearer", options =>
             {
                 options.Authority = appConfig.GetValue<string>("GatekeeperUrl");
                 options.ApiName = appConfig.GetValue<string>("ApiResourceName", "comms");
